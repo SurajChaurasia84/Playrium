@@ -25,16 +25,24 @@ class _TargetHitGameScreenState extends State<TargetHitGameScreen> {
     super.initState();
     _game = TargetHitFlameGame(
       onScoreUpdated: (newScore) {
-        setState(() {
-          _score = newScore;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _score = newScore;
+            });
+          }
         });
       },
       onGameEnded: (score, telemetry) {
-        setState(() {
-          _isFinished = true;
-          _isPlaying = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _isFinished = true;
+              _isPlaying = false;
+            });
+            widget.onGameFinished(score, telemetry);
+          }
         });
-        widget.onGameFinished(score, telemetry);
       },
     );
   }
