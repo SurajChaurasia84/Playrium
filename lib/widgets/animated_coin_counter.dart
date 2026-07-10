@@ -88,11 +88,11 @@ class _AnimatedCoinCounterState extends State<AnimatedCoinCounter> with SingleTi
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppTheme.accentColor.withOpacity(0.15),
+              color: AppTheme.accentColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.accentColor.withOpacity(0.3),
+                  color: AppTheme.accentColor.withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 1,
                 )
