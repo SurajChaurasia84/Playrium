@@ -54,7 +54,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 46,
-                          backgroundColor: AppTheme.primaryColor.withOpacity(0.2),
+                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                           backgroundImage: NetworkImage(user.avatarUrl),
                           onForegroundImageError: (exception, stackTrace) => const Icon(Icons.person, size: 40),
                         ),
@@ -214,13 +214,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         blur: 5,
         opacity: isUnlocked ? 0.12 : 0.03,
         padding: const EdgeInsets.all(8),
-        border: isUnlocked ? Border.all(color: AppTheme.accentColor.withOpacity(0.5)) : null,
+        border: isUnlocked ? Border.all(color: AppTheme.accentColor.withValues(alpha: 0.5)) : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isUnlocked ? AppTheme.accentColor : Colors.grey.withOpacity(0.4),
+              color: isUnlocked ? AppTheme.accentColor : Colors.grey.withValues(alpha: 0.4),
               size: 28,
             ),
             const SizedBox(height: 6),
