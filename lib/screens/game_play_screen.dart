@@ -96,7 +96,7 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
           if (_submittingScore)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -143,7 +143,7 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppTheme.accentColor.withOpacity(0.2),
+                                color: AppTheme.accentColor.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: AppTheme.accentColor),
                               ),
@@ -183,14 +183,14 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
           if (_errorMessage != null)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.9),
+                color: Colors.black.withValues(alpha: 0.9),
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: GlassCard(
                       blur: 16,
                       opacity: 0.1,
-                      border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                      border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
