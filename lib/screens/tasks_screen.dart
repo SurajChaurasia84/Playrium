@@ -144,15 +144,13 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Column(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 8),
+              child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -246,8 +244,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   void _showCompleteProfileDialog(BuildContext context) {
