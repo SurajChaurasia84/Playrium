@@ -3,26 +3,49 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart';
 
 class AdmobService {
-  // Official Google AdMob Test Ad Units
+  // Google AdMob Ad Unit IDs
   static String get bannerAdUnitId {
     if (kIsWeb) return '';
-    return defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-3940256099942544/6300978111'
-        : 'ca-app-pub-3940256099942544/2934735716'; // iOS
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return kReleaseMode
+          ? 'ca-app-pub-2209498185642035/4907682052' // Real Banner
+          : 'ca-app-pub-3940256099942544/6300978111'; // Test Banner
+    } else {
+      return 'ca-app-pub-3940256099942544/2934735716'; // iOS Test Banner
+    }
   }
 
   static String get interstitialAdUnitId {
     if (kIsWeb) return '';
-    return defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-3940256099942544/1033173712'
-        : 'ca-app-pub-3940256099942544/4411468910'; // iOS
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return kReleaseMode
+          ? 'ca-app-pub-2209498185642035/9867375019' // Real Interstitial
+          : 'ca-app-pub-3940256099942544/1033173712'; // Test Interstitial
+    } else {
+      return 'ca-app-pub-3940256099942544/4411468910'; // iOS Test Interstitial
+    }
   }
 
   static String get rewardedAdUnitId {
     if (kIsWeb) return '';
-    return defaultTargetPlatform == TargetPlatform.android
-        ? 'ca-app-pub-3940256099942544/5224354917'
-        : 'ca-app-pub-3940256099942544/1712485313'; // iOS
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return kReleaseMode
+          ? 'ca-app-pub-2209498185642035/8282830606' // Real Rewarded
+          : 'ca-app-pub-3940256099942544/5224354917'; // Test Rewarded
+    } else {
+      return 'ca-app-pub-3940256099942544/1712485313'; // iOS Test Rewarded
+    }
+  }
+
+  static String get appOpenAdUnitId {
+    if (kIsWeb) return '';
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return kReleaseMode
+          ? 'ca-app-pub-2209498185642035/3243246594' // Real App Open
+          : 'ca-app-pub-3940256099942544/9257395921'; // Test App Open
+    } else {
+      return 'ca-app-pub-3940256099942544/9257395921'; // iOS Test App Open fallback
+    }
   }
 
   bool _isAdMobAvailable() {
