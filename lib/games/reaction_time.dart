@@ -56,10 +56,15 @@ class _ReactionTimeScreenState extends State<ReactionTimeScreen> {
       // Score calculation: faster reaction = higher score
       // Under 200ms = 100 points, under 300ms = 80 points, etc.
       int score = 0;
-      if (_reactionTime < 200) score = 100;
-      else if (_reactionTime < 300) score = 80;
-      else if (_reactionTime < 450) score = 60;
-      else score = 40;
+      if (_reactionTime < 200) {
+        score = 100;
+      } else if (_reactionTime < 300) {
+        score = 80;
+      } else if (_reactionTime < 450) {
+        score = 60;
+      } else {
+        score = 40;
+      }
 
       final telemetry = {
         'reactionTimeMs': _reactionTime,
