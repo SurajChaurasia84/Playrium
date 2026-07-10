@@ -205,7 +205,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
@@ -275,7 +275,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           gradient: LinearGradient(
-                            colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                            colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                           ),
@@ -331,7 +331,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           final item = _leaderboardList[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: AppTheme.primaryColor.withOpacity(0.2),
+                              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                               child: Text("#${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.secondaryColor)),
                             ),
                             title: Text(
