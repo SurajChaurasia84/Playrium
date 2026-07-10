@@ -96,7 +96,7 @@ class _TapChallengeScreenState extends State<TapChallengeScreen> with SingleTick
           child: GlassCard(
             blur: 16,
             opacity: 0.1,
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -136,7 +136,7 @@ class _TapChallengeScreenState extends State<TapChallengeScreen> with SingleTick
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.secondaryColor.withOpacity(0.4),
+                              color: AppTheme.secondaryColor.withValues(alpha: 0.4),
                               blurRadius: 20,
                               spreadRadius: 2,
                             ),
