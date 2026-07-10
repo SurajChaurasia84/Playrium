@@ -40,11 +40,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          bottom: false,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 100), // extra padding for bottom navigation
-            children: [
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 100), // extra padding for bottom navigation
+          children: [
               // Avatar & Level Section
               Center(
                 child: Column(
@@ -56,7 +54,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           radius: 46,
                           backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
                           backgroundImage: NetworkImage(user.avatarUrl),
-                          onForegroundImageError: (exception, stackTrace) => const Icon(Icons.person, size: 40),
+                          onBackgroundImageError: (exception, stackTrace) {
+                            debugPrint("Failed to load profile image: $exception");
+                          },
+                          child: const Icon(Icons.person, size: 40, color: Colors.white70),
                         ),
                         Container(
                           padding: const EdgeInsets.all(6),
@@ -96,7 +97,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           const Text("COINS EARNED", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text("${user.coins}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.accentColor)),
+                          Text(
+                            "${user.coins}",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? AppTheme.accentColor : const Color(0xFFD97706),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -157,20 +165,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ListTile(
                       leading: const Icon(Icons.palette_outlined, color: AppTheme.primaryColor),
                       title: const Text("Theme Layout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                      trailing: DropdownButton<ThemeMode>(
-                        value: themeMode,
-                        underline: const SizedBox(),
-                        onChanged: (mode) {
-                          if (mode != null) {
-                            ref.read(themeModeProvider.notifier).setThemeMode(mode);
-                          }
-                        },
-                        items: const [
-                          DropdownMenuItem(value: ThemeMode.system, child: Text("System", style: TextStyle(fontSize: 13))),
-                          DropdownMenuItem(value: ThemeMode.light, child: Text("Light Theme", style: TextStyle(fontSize: 13))),
-                          DropdownMenuItem(value: ThemeMode.dark, child: Text("Dark Theme", style: TextStyle(fontSize: 13))),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            themeMode == ThemeMode.system
+                                ? "System"
+                                : themeMode == ThemeMode.light
+                                    ? "Light"
+                                    : "Dark",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
                         ],
                       ),
+                      onTap: () {
+                        _showThemeSelectionSheet(context, ref, themeMode);
+                      },
                     ),
                     Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
                     
@@ -202,11 +216,71 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
           ),
         ),
+      );
+  }
+
+  void _showThemeSelectionSheet(BuildContext context, WidgetRef ref, ThemeMode currentMode) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppTheme.darkSurfaceColor : AppTheme.lightSurfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              // Grabber/Handle
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Choose Theme Mode",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              _buildThemeSheetOption(context, ref, "System Default", ThemeMode.system, currentMode == ThemeMode.system, Icons.brightness_auto_outlined),
+              _buildThemeSheetOption(context, ref, "Light Mode", ThemeMode.light, currentMode == ThemeMode.light, Icons.light_mode_outlined),
+              _buildThemeSheetOption(context, ref, "Dark Mode", ThemeMode.dark, currentMode == ThemeMode.dark, Icons.dark_mode_outlined),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeSheetOption(BuildContext context, WidgetRef ref, String title, ThemeMode mode, bool isSelected, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? AppTheme.primaryColor : (isDark ? Colors.white70 : Colors.black80)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? AppTheme.primaryColor : (isDark ? Colors.white : Colors.black87),
+        ),
+      ),
+      trailing: isSelected ? const Icon(Icons.check_circle, color: AppTheme.primaryColor) : null,
+      onTap: () {
+        ref.read(themeModeProvider.notifier).setThemeMode(mode);
+        Navigator.pop(context);
+      },
     );
   }
 
   Widget _achievementBadge(String title, String desc, IconData icon, bool isUnlocked) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 120,
       margin: const EdgeInsets.only(right: 12),
@@ -214,13 +288,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         blur: 5,
         opacity: isUnlocked ? 0.12 : 0.03,
         padding: const EdgeInsets.all(8),
-        border: isUnlocked ? Border.all(color: AppTheme.accentColor.withValues(alpha: 0.5)) : null,
+        border: isUnlocked 
+            ? Border.all(color: (isDark ? AppTheme.accentColor : const Color(0xFFD97706)).withValues(alpha: 0.5)) 
+            : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isUnlocked ? AppTheme.accentColor : Colors.grey.withValues(alpha: 0.4),
+              color: isUnlocked 
+                  ? (isDark ? AppTheme.accentColor : const Color(0xFFD97706)) 
+                  : Colors.grey.withValues(alpha: 0.4),
               size: 28,
             ),
             const SizedBox(height: 6),
@@ -232,7 +310,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: isUnlocked ? Colors.white : Colors.white30,
+                color: isUnlocked 
+                    ? (isDark ? Colors.white : Colors.black87) 
+                    : (isDark ? Colors.white30 : Colors.black26),
               ),
             ),
             Text(
