@@ -58,9 +58,9 @@ class _TargetHitGameScreenState extends State<TargetHitGameScreen> {
                 padding: const EdgeInsets.all(24),
                 margin: const EdgeInsets.symmetric(horizontal: 32),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurfaceColor.withOpacity(0.95),
+                  color: AppTheme.darkSurfaceColor.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppTheme.primaryColor.withOpacity(0.5)),
+                  border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -111,7 +111,7 @@ class _TargetHitGameScreenState extends State<TargetHitGameScreen> {
                     decoration: BoxDecoration(
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
+                      border: Border.all(color: AppTheme.secondaryColor.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       "SCORE: $_score",
@@ -126,7 +126,7 @@ class _TargetHitGameScreenState extends State<TargetHitGameScreen> {
                         decoration: BoxDecoration(
                           color: Colors.black54,
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                         ),
                         child: Text(
                           "TIME: ${timeLeft}s",
