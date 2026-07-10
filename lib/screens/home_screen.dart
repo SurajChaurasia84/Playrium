@@ -95,14 +95,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
         ),
         child: FadeTransition(
           opacity: _fadeController,
-          child: SafeArea(
-            bottom: false,
-            child: RefreshIndicator(
-              onRefresh: () async {
-                await _loadLeaderboard();
-              },
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100), // extra padding for nav
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await _loadLeaderboard();
+            },
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 100), // dynamic status bar padding
                 children: [
                   // Animated Greeting & Profile Header
                   Row(
@@ -351,7 +349,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
