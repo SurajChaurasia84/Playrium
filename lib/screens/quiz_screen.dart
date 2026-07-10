@@ -191,7 +191,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           itemCount: q['answers'].length,
           itemBuilder: (context, idx) {
             Color btnColor = AppTheme.darkSurfaceColor;
-            BorderSide border = BorderSide(color: Colors.white.withOpacity(0.08));
+            BorderSide border = BorderSide(color: Colors.white.withValues(alpha: 0.08));
 
             if (_selectedAnswerIdx != null) {
               if (idx == q['correctIdx']) {
