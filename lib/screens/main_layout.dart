@@ -43,18 +43,18 @@ class MainLayout extends StatelessWidget {
                   height: 68,
                   decoration: BoxDecoration(
                     color: isDark 
-                        ? Colors.black.withOpacity(0.55) 
-                        : Colors.white.withOpacity(0.75),
+                        ? Colors.black.withValues(alpha: 0.55) 
+                        : Colors.white.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: isDark 
-                          ? Colors.white.withOpacity(0.08) 
-                          : Colors.black.withOpacity(0.06),
+                          ? Colors.white.withValues(alpha: 0.08) 
+                          : Colors.black.withValues(alpha: 0.06),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 16,
                         offset: const Offset(0, 8),
                       ),
@@ -97,7 +97,7 @@ class MainLayout extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected 
-                    ? AppTheme.primaryColor.withOpacity(0.12) 
+                    ? AppTheme.primaryColor.withValues(alpha: 0.12) 
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
               ),
