@@ -257,7 +257,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
                             final val = _grid[r][c];
                             return Container(
                               decoration: BoxDecoration(
-                                color: val == 0 ? Colors.white.withOpacity(0.04) : _getTileColor(val),
+                                color: val == 0 ? Colors.white.withValues(alpha: 0.04) : _getTileColor(val),
                                 borderRadius: BorderRadius.circular(8),
                                 border: val == 2048 
                                     ? Border.all(color: AppTheme.accentColor, width: 2) 
