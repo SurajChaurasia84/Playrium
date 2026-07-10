@@ -9,13 +9,9 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Robust initialization of Firebase
-  try {
-    await Firebase.initializeApp();
-    debugPrint("Firebase initialized successfully.");
-  } catch (e) {
-    debugPrint("⚠️ Firebase core failed to initialize. Client is running in mock/simulator mode. Reason: $e");
-  }
+  // Initialize Firebase
+  await Firebase.initializeApp();
+  debugPrint("Firebase initialized successfully.");
 
   // Robust initialization of AdMob Mobile Ads SDK
   try {
