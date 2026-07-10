@@ -184,7 +184,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withOpacity(0.12),
+                                color: AppTheme.primaryColor.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(task.icon, color: AppTheme.secondaryColor, size: 24),
