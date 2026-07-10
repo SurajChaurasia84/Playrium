@@ -26,7 +26,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 
   late List<bool> _cardFlipped;
   late List<bool> _cardMatched;
-  List<int> _selectedIndices = [];
+  final List<int> _selectedIndices = [];
   int _moves = 0;
   int _matchedPairs = 0;
   bool _isPlaying = false;
@@ -187,16 +187,16 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             decoration: BoxDecoration(
-                              color: isFlipped ? AppTheme.darkSurfaceColor : AppTheme.primaryColor.withOpacity(0.8),
+                              color: isFlipped ? AppTheme.darkSurfaceColor : AppTheme.primaryColor.withValues(alpha: 0.8),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isFlipped ? AppTheme.secondaryColor.withOpacity(0.5) : Colors.white24,
+                                color: isFlipped ? AppTheme.secondaryColor.withValues(alpha: 0.5) : Colors.white24,
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 if (!isFlipped)
                                   BoxShadow(
-                                    color: AppTheme.primaryColor.withOpacity(0.3),
+                                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   ),
