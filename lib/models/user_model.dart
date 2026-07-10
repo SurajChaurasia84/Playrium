@@ -80,6 +80,23 @@ class UserModel {
     };
   }
 
+  Map<String, dynamic> toJsonMap() {
+    return {
+      'uid': uid,
+      'username': username,
+      'email': email,
+      'avatarUrl': avatarUrl,
+      'level': level,
+      'xp': xp,
+      'coins': coins,
+      'lastCheckInDate': lastCheckInDate,
+      'streak': streak,
+      'profileCompleted': profileCompleted,
+      'hasProfilePhoto': hasProfilePhoto,
+      'lastUpdated': (lastUpdated ?? DateTime.now()).toIso8601String(),
+    };
+  }
+
   factory UserModel.fromMap(Map<String, dynamic> map) {
     DateTime? lastUpdatedTime;
     if (map['lastUpdated'] is Timestamp) {
