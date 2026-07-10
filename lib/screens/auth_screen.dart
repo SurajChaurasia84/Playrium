@@ -83,7 +83,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                   height: 300,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.primaryColor.withOpacity(0.15),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.15),
                   ),
                 ),
               ),
@@ -95,7 +95,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                   height: 250,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.secondaryColor.withOpacity(0.12),
+                    color: AppTheme.secondaryColor.withValues(alpha: 0.12),
                   ),
                 ),
               ),
@@ -115,9 +115,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.15),
+                            color: AppTheme.primaryColor.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+                            border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
                           ),
                           child: const Icon(
                             Icons.sports_esports,
