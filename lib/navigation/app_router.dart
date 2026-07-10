@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../screens/auth_screen.dart';
+import '../services/auth_service.dart';
 import '../screens/home_screen.dart';
 import '../screens/tasks_screen.dart';
 import '../screens/games_screen.dart';
@@ -120,5 +121,5 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 // Simple Auth state provider for the router redirect
 final authStateProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
+  return AuthService().authStateChanges;
 });
