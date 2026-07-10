@@ -11,7 +11,7 @@ class ApiService {
   static const String _baseUrlDev = kIsWeb 
       ? 'http://localhost:3000' 
       : 'http://10.0.2.2:3000'; // Loopback address for android emulator
-  static const String _baseUrlProd = 'https://playrium-backend-placeholder.vercel.app';
+  static const String _baseUrlProd = 'https://backend-ruddy-chi-21.vercel.app';
 
   String get baseUrl => kDebugMode ? _baseUrlDev : _baseUrlProd;
 
