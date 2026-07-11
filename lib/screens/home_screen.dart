@@ -320,28 +320,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       blur: 10,
                       opacity: isDark ? 0.05 : 0.03,
                       padding: EdgeInsets.zero,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _leaderboardList.length.clamp(0, 3),
-                        separatorBuilder: (context, index) => Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                        itemBuilder: (context, index) {
-                          final item = _leaderboardList[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-                              child: Text("#${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.secondaryColor)),
-                            ),
-                            title: Text(
-                              item['username'] ?? 'Anonymous Gamer',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
-                            trailing: Text(
-                              "${item['score'] ?? 0} pts",
-                              style: const TextStyle(fontWeight: FontWeight.w800, color: AppTheme.secondaryColor),
-                            ),
-                          );
-                        },
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _leaderboardList.length.clamp(0, 3),
+                          separatorBuilder: (context, index) => Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                          itemBuilder: (context, index) {
+                            final item = _leaderboardList[index];
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+                                child: Text("#${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.secondaryColor)),
+                              ),
+                              title: Text(
+                                item['username'] ?? 'Anonymous Gamer',
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                              trailing: Text(
+                                "${item['score'] ?? 0} pts",
+                                style: const TextStyle(fontWeight: FontWeight.w800, color: AppTheme.secondaryColor),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                 ],
