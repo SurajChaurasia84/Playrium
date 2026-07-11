@@ -138,22 +138,7 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
                             "GAME OVER!",
                             style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.0),
                           ),
-                          const SizedBox(height: 8),
-                          if (_rewardResults!['newHighScore'] == true) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppTheme.accentColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppTheme.accentColor),
-                              ),
-                              child: const Text(
-                                "NEW HIGHSCORE!",
-                                style: TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold, fontSize: 11),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                          ],
+                          const SizedBox(height: 16),
                           Center(
                             child: _rewardCell("+${_rewardResults!['rewardCoins']} Coins", Icons.monetization_on, AppTheme.accentColor),
                           ),
