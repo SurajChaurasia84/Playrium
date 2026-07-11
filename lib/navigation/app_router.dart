@@ -72,6 +72,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const AppInfoScreen(),
       ),
+      GoRoute(
+        path: '/games-all',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const GamesScreen(),
+      ),
       
       // Bottom Navigation layout using StatefulShellRoute
       StatefulShellRoute.indexedStack(
