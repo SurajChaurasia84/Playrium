@@ -178,7 +178,7 @@ class AppOpenAdManager {
   DateTime? _loadTime;
 
   /// Load an AppOpenAd.
-  void loadAd() {
+  void loadAd({bool showOnLoad = false}) {
     if (kIsWeb) return;
     final isMobile = defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
     if (!isMobile) return;
@@ -191,6 +191,9 @@ class AppOpenAdManager {
           debugPrint('AppOpenAd loaded.');
           _appOpenAd = ad;
           _loadTime = DateTime.now();
+          if (showOnLoad) {
+            showAdIfAvailable();
+          }
         },
         onAdFailedToLoad: (error) {
           debugPrint('AppOpenAd failed to load: $error');
@@ -213,8 +216,7 @@ class AppOpenAdManager {
     }
 
     if (!isAdAvailable) {
-      debugPrint('AppOpenAd is not available. Loading next ad.');
-      loadAd();
+      debugPrint('AppOpenAd is not available.');
       return;
     }
 
@@ -228,14 +230,12 @@ class AppOpenAdManager {
         debugPrint('AppOpenAd dismissed full screen content.');
         ad.dispose();
         _appOpenAd = null;
-        loadAd(); // Pre-load the next ad
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         _isShowingAd = false;
         debugPrint('AppOpenAd failed to show: $error');
         ad.dispose();
         _appOpenAd = null;
-        loadAd(); // Retry loading
       },
     );
 
