@@ -13,6 +13,7 @@ import '../screens/quiz_screen.dart';
 import '../screens/game_play_screen.dart';
 import '../screens/main_layout.dart';
 import '../screens/app_info_screen.dart';
+import '../main.dart';
 
 // Key for navigator
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -21,22 +22,42 @@ final GlobalKey<NavigatorState> _tasksNavigatorKey = GlobalKey<NavigatorState>(d
 final GlobalKey<NavigatorState> _gamesNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'games');
 final GlobalKey<NavigatorState> _profileNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
+// Guest Mode Skip Notifier & Provider
+class GuestModeNotifier extends StateNotifier<bool> {
+  GuestModeNotifier() : super(sharedPrefs.getBool('is_guest_mode') ?? false);
+
+  void setGuestMode(bool isGuest) {
+    state = isGuest;
+    sharedPrefs.setBool('is_guest_mode', isGuest);
+  }
+}
+
+final isGuestModeProvider = StateNotifierProvider<GuestModeNotifier, bool>((ref) {
+  return GuestModeNotifier();
+});
+
 // Provider for Router
 final routerProvider = Provider<GoRouter>((ref) {
   // We can listen to Firebase Auth changes to trigger router rebuilds/redirects
   final authState = ref.watch(authStateProvider);
+  final isGuestMode = ref.watch(isGuestModeProvider);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/home',
     redirect: (context, state) {
+      // Prevent routing checks while Firebase Auth initializes to avoid flickering on fresh start
+      if (authState.isLoading) {
+        return null;
+      }
+
       final isLoggedIn = authState.value != null;
       final isLoggingIn = state.matchedLocation == '/welcome';
 
-      if (!isLoggedIn) {
+      if (!isLoggedIn && !isGuestMode) {
         return '/welcome';
       }
-      if (isLoggedIn && isLoggingIn) {
+      if ((isLoggedIn || isGuestMode) && isLoggingIn) {
         return '/home';
       }
       return null;
