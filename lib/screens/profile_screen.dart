@@ -18,7 +18,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final AuthService _authService = AuthService();
-  bool _notificationsEnabled = true;
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +148,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       // Theme Mode Dropdown
                       ListTile(
                         leading: const Icon(Icons.palette_outlined, color: AppTheme.primaryColor),
-                        title: const Text("Theme Layout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        title: const Text("Theme", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -172,21 +171,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         },
                       ),
                       Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                      
-                      // Notification Switches
-                      SwitchListTile(
-                        secondary: const Icon(Icons.notifications_active_outlined, color: AppTheme.secondaryColor),
-                        title: const Text("Alert Push Notifications", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        value: _notificationsEnabled,
-                        activeThumbColor: AppTheme.secondaryColor,
-                        onChanged: (val) {
-                          setState(() {
-                            _notificationsEnabled = val;
-                          });
-                        },
-                      ),
-                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-
                       // App Info
                       ListTile(
                         leading: const Icon(Icons.info_outline, color: AppTheme.primaryColor),
@@ -205,8 +189,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           try {
                             await SharePlus.instance.share(
                               ShareParams(
-                                text: "Hey! Check out Playrium - a premium rewarded arcade and quiz gaming app: https://playrium.com/download",
-                                subject: "Playrium Game App",
+                                text: "Hey! Check out Playrium - a premium rewarded arcade and quiz gaming app. Download now on Google Play Store: https://play.google.com/store/apps/details?id=com.playrium.tasks.app",
+                                subject: "Playrium App",
                               ),
                             );
                           } catch (e) {
@@ -277,7 +261,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       // Log out
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.redAccent),
-                        title: const Text("Logout Session", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent)),
+                        title: const Text("Logout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent)),
                         onTap: () {
                           _authService.signOut();
                         },
