@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'navigation/app_router.dart';
 import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'services/admob_service.dart';
 
+late final SharedPreferences sharedPrefs;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences
+  sharedPrefs = await SharedPreferences.getInstance();
 
   // Initialize Firebase
   await Firebase.initializeApp();
