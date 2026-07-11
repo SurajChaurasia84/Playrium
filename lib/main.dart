@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'navigation/app_router.dart';
 import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
+import 'services/admob_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +29,26 @@ void main() async {
   );
 }
 
-class PlayriumApp extends ConsumerWidget {
+class PlayriumApp extends ConsumerStatefulWidget {
   const PlayriumApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlayriumApp> createState() => _PlayriumAppState();
+}
+
+class _PlayriumAppState extends ConsumerState<PlayriumApp> {
+  late final AppOpenAdManager _appOpenAdManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _appOpenAdManager = AppOpenAdManager();
+    // Load and show automatically on fresh start
+    _appOpenAdManager.loadAd(showOnLoad: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
 
