@@ -100,14 +100,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       child: Column(
                         children: [
                           const Text("COINS EARNED", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text(
-                            "${user.coins}",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? AppTheme.accentColor : const Color(0xFFD97706),
-                            ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset('assets/coin.png', width: 22, height: 22),
+                              const SizedBox(width: 6),
+                              Text(
+                                "${user.coins}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? AppTheme.accentColor : const Color(0xFFD97706),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -120,9 +127,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       opacity: isDark ? 0.05 : 0.03,
                       child: Column(
                         children: [
-                          const Text("STREAK SCORE", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text("${user.streak} Days", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.secondaryColor)),
+                          const Text("DAILY STREAK", style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset('assets/streak.png', width: 22, height: 22),
+                              const SizedBox(width: 6),
+                              Text(
+                                "${user.streak}",
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.secondaryColor),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
