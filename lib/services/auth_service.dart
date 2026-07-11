@@ -51,6 +51,17 @@ class AuthService {
     }
   }
 
+  // Anonymous Sign-In (Guest Skip)
+  Future<User?> signInAnonymously() async {
+    try {
+      final UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
+      return userCredential.user;
+    } catch (e) {
+      debugPrint("Error during Anonymous Sign In: $e");
+      rethrow;
+    }
+  }
+
   // Sign out
   Future<void> signOut() async {
     await _googleSignIn.signOut();
