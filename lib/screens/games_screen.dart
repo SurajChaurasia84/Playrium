@@ -90,6 +90,16 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text(
+          "Mini Games",
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -103,26 +113,9 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 8),
-              child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "PLAY AND EARN",
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.5),
-                    ),
-                    Text(
-                      "ARCADE LOBBY",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Game selection grid list
-              Expanded(
+            SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8),
+            // Game selection grid list
+            Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
