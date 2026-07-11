@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../navigation/app_router.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/glass_card.dart';
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   late AnimationController _fadeController;
@@ -59,6 +60,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     }
   }
 
+  void _handleGuestSignIn() {
+    ref.read(isGuestModeProvider.notifier).setGuestMode(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,110 +105,151 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 ),
               ),
 
-              Center(
+              // Upper Right Corner Skip Button
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: TextButton(
+                  onPressed: _isLoading ? null : _handleGuestSignIn,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white60,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Skip",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+              ),
+
+              SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                  child: GlassCard(
-                    blur: 20,
-                    opacity: 0.08,
-                    borderRadius: 30,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 16),
-                        // App Brand Logo
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
-                          ),
-                          child: const Icon(
-                            Icons.sports_esports,
-                            size: 72,
-                            color: AppTheme.secondaryColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
+
+                      // App Brand Logo
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          color: Colors.transparent,
+                          child: Image.asset(
+                            'assets/icon.png',
+                            width: 110,
+                            height: 110,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 110,
+                              height: 110,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
+                              ),
+                              child: const Icon(
+                                Icons.sports_esports,
+                                size: 54,
+                                color: AppTheme.secondaryColor,
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        
-                        // App Title
-                        const Text(
-                          "PLAYRIUM",
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2.0,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                color: AppTheme.secondaryColor,
-                                blurRadius: 10,
+                      ),
+                      // const SizedBox(height: 4),
+                      
+                      // App Title
+                      const Text(
+                        "Playrium",
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.0,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: AppTheme.secondaryColor,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        "Play. Achieve. Level Up.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      const Spacer(flex: 3),
+
+                      // Sign In Button
+                      if (_isLoading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryColor),
+                          ),
+                        )
+                      else
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            minimumSize: const Size(double.infinity, 54),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 2,
+                          ),
+                          onPressed: _handleGoogleSignIn,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                                height: 22,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, size: 28),
+                              ),
+                              const SizedBox(width: 14),
+                              const Text(
+                                "Sign In with Google",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          "Play. Achieve. Earn. Level Up.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      
+                      const SizedBox(height: 16),
+                      const Text(
+                        "By signing in, you agree to our Terms of Service & Privacy Policy.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.white30,
+                          height: 1.4,
                         ),
-                        const SizedBox(height: 32),
-
-                        if (_isLoading)
-                          const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryColor),
-                          )
-                        else
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black87,
-                              minimumSize: const Size(double.infinity, 54),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 2,
-                            ),
-                            onPressed: _handleGoogleSignIn,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.network(
-                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-                                  height: 22,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, size: 28),
-                                ),
-                                const SizedBox(width: 14),
-                                const Text(
-                                  "Sign In with Google",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        
-                        const SizedBox(height: 16),
-                        const Text(
-                          "By signing in, you agree to our Terms of Service & Privacy Policy. Rewards are purely engagement-based. Playrium does not promote real money gambling.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.white30,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
