@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/user_provider.dart';
 import '../widgets/glass_card.dart';
-import '../widgets/xp_progress_ring.dart';
+
 import '../widgets/animated_coin_counter.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
@@ -56,7 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("🎉 Claimed 5 Coins & 10 XP daily checkin bonus!"),
+            content: Text("🎉 Claimed 5 Coins daily checkin bonus!"),
             backgroundColor: AppTheme.primaryColor,
           ),
         );
@@ -129,16 +129,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           ),
                         ],
                       ),
-                      XpProgressRing(
-                        progress: user.xpProgressRatio,
-                        level: user.level,
-                        size: 58,
-                        child: Image.network(
-                          user.avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppTheme.primaryColor,
-                            child: const Icon(Icons.person, color: Colors.white, size: 24),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(29),
+                        child: SizedBox(
+                          width: 58,
+                          height: 58,
+                          child: Image.network(
+                            user.avatarUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: AppTheme.primaryColor,
+                              child: const Icon(Icons.person, color: Colors.white, size: 24),
+                            ),
                           ),
                         ),
                       ),
@@ -151,7 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                     blur: 16,
                     opacity: isDark ? 0.08 : 0.05,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,20 +171,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                 fontWeight: FontWeight.w800,
                                 color: AppTheme.accentColor,
                               ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "XP PROGRESS: ${(user.xpProgressRatio * 100).toStringAsFixed(0)}%",
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              "${user.xp} / ${user.xpForNextLevel} XP",
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
