@@ -16,6 +16,7 @@ class TasksScreen extends ConsumerStatefulWidget {
 class _TasksScreenState extends ConsumerState<TasksScreen> {
   final AdmobService _admobService = AdmobService();
   int _adsWatchedToday = 0; // Simple local state tracker for visual limit checking
+  bool _loadingAd = false;
 
   void _watchRewardedAd() {
     if (_adsWatchedToday >= 5) {
@@ -45,6 +46,20 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         }
       },
       onClosed: () {},
+      onLoadingStart: () {
+        if (mounted) {
+          setState(() {
+            _loadingAd = true;
+          });
+        }
+      },
+      onLoadingEnd: () {
+        if (mounted) {
+          setState(() {
+            _loadingAd = false;
+          });
+        }
+      },
     );
   }
 
@@ -134,19 +149,21 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     ];
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDark
-                ? [AppTheme.darkBgColor, const Color(0xFF13111C)]
-                : [AppTheme.lightBgColor, const Color(0xFFECEEF5)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [AppTheme.darkBgColor, const Color(0xFF13111C)]
+                    : [AppTheme.lightBgColor, const Color(0xFFECEEF5)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Header
             Padding(
               padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 8),
@@ -244,7 +261,28 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             ],
           ),
         ),
-      );
+          if (_loadingAd)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.75),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryColor)),
+                      SizedBox(height: 16),
+                      Text(
+                        "Loading Sponsor Ad...",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   void _showCompleteProfileDialog(BuildContext context) {
