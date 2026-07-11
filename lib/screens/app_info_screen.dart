@@ -96,10 +96,6 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                           "Playrium",
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
                         ),
-                        Text(
-                          "Version $_version ($_buildNumber)",
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
                       ],
                     ),
                   ),
@@ -124,6 +120,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       ],
                     ),
                   ),
+                ],
               ),
             ),
             SafeArea(
