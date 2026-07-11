@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
 import '../providers/user_provider.dart';
-import '../games/target_hit_game.dart';
 import '../games/tap_challenge.dart';
 import '../games/reaction_time.dart';
 import '../games/memory_match.dart';
-import '../games/color_match.dart';
 import '../games/game_2048.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
@@ -50,16 +48,12 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
 
   Widget _buildSelectedGame() {
     switch (widget.gameId) {
-      case 'target_hit':
-        return TargetHitGameScreen(onGameFinished: _onGameFinished);
       case 'tap_challenge':
         return TapChallengeScreen(onGameFinished: _onGameFinished);
       case 'reaction_time':
         return ReactionTimeScreen(onGameFinished: _onGameFinished);
       case 'memory_match':
         return MemoryMatchScreen(onGameFinished: _onGameFinished);
-      case 'color_match':
-        return ColorMatchScreen(onGameFinished: _onGameFinished);
       case 'game_2048':
         return Game2048Screen(onGameFinished: _onGameFinished);
       default:
