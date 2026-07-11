@@ -12,6 +12,7 @@ import '../screens/profile_screen.dart';
 import '../screens/quiz_screen.dart';
 import '../screens/game_play_screen.dart';
 import '../screens/main_layout.dart';
+import '../screens/app_info_screen.dart';
 
 // Key for navigator
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -44,6 +45,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/welcome',
         builder: (context, state) => const AuthScreen(),
+      ),
+      GoRoute(
+        path: '/profile/info',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AppInfoScreen(),
       ),
       
       // Bottom Navigation layout using StatefulShellRoute
