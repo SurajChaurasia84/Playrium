@@ -5,6 +5,7 @@ import '../providers/user_provider.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/animated_coin_counter.dart';
 import '../services/firestore_service.dart';
+import '../services/admob_service.dart';
 import '../theme/app_theme.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
   final FirestoreService _firestoreService = FirestoreService();
   List<Map<String, dynamic>> _leaderboardList = [];
+  List<Map<String, dynamic>> _featuredGames = [];
   bool _isLoadingLeaderboard = true;
   late AnimationController _fadeController;
 
@@ -24,6 +26,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   void initState() {
     super.initState();
     _loadLeaderboard();
+
+    // Shuffle and pick max 5 games on every screen creation / app open
+    final List<Map<String, dynamic>> allGames = [
+      {
+        'id': 'tap_challenge',
+        'name': 'Tap Challenge',
+        'gradient': [const Color(0xFF00D1FF), const Color(0xFF00A8FF)],
+        'image': 'assets/quiz.png',
+      },
+      {
+        'id': 'reaction_time',
+        'name': 'Reaction Time',
+        'gradient': [const Color(0xFFFF416C), const Color(0xFFFF4B2B)],
+        'image': 'assets/streak.png',
+      },
+      {
+        'id': 'memory_match',
+        'name': 'Memory Match',
+        'gradient': [const Color(0xFF11998E), const Color(0xFF38EF7D)],
+        'image': 'assets/memory-match.png',
+      },
+      {
+        'id': 'game_2048',
+        'name': '2048 Puzzle',
+        'gradient': [const Color(0xFF4568DC), const Color(0xFFB06AB3)],
+        'image': 'assets/2048.png',
+      },
+    ];
+
+    allGames.shuffle();
+    _featuredGames = allGames.take(5).toList();
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -51,22 +85,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     final notifier = ref.read(userProvider.notifier);
     final success = await notifier.claimTaskReward('daily_checkin');
 
-    if (mounted) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("🎉 Claimed daily checkin bonus!"),
-            backgroundColor: AppTheme.primaryColor,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Already claimed today, come back tomorrow!"),
-            backgroundColor: Colors.orangeAccent,
-          ),
-        );
-      }
+    if (!mounted) return;
+
+    if (success) {
+      // Show snackbar first, then interstitial ad
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("🎉 Claimed daily checkin bonus!"),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+      );
+      AdmobService().showTransitionInterstitial(context, () {});
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Already claimed today, come back tomorrow!"),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
     }
   }
 
@@ -82,10 +118,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     }
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? const Color(0xFF1A1E2E) : Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: isDark ? Colors.white10 : Colors.black12,
+          ),
+        ),
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(left: 20.0),
@@ -136,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
               await _loadLeaderboard();
             },
             child: ListView(
-              padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + kToolbarHeight + 16, 20, 100),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
               children: [
                 // Coin Balance Card
                 GlassCard(
@@ -227,53 +272,76 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                 ),
                 const SizedBox(height: 24),
 
-                // Featured Action Items
-                const Text(
-                  "FEATURED GAMES",
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2),
+                // Featured Action Items Header with See All button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "FEATURED GAMES",
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () => context.push('/games-all'),
+                      child: const Text(
+                        "See All",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 
-                // Featured Game Promo Card
-                GestureDetector(
-                  onTap: () => context.go('/games/play/tap_challenge'),
-                  child: Container(
-                    height: 140,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Tap Challenge",
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                // Shuffled Horizontal List showing raw image and game name only
+                SizedBox(
+                  height: 88,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _featuredGames.length,
+                    itemBuilder: (context, index) {
+                      final game = _featuredGames[index];
+                      return GestureDetector(
+                        onTap: () => context.go('/games/play/${game['id']}'),
+                        child: Container(
+                          width: 90,
+                          margin: const EdgeInsets.only(right: 16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                game['image'] as String,
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.contain,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                game['name'] as String,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black87,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Click fast button. Test clicking frequency limits.",
-                            style: TextStyle(color: Colors.white70, fontSize: 11),
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
 
                 // Leaderboard Preview
                 Row(
@@ -294,48 +362,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                 if (_isLoadingLeaderboard)
                   const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 else
-                  GlassCard(
-                    blur: 10,
-                    opacity: isDark ? 0.05 : 0.03,
-                    padding: EdgeInsets.zero,
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(20),
-                      clipBehavior: Clip.antiAlias,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _leaderboardList.length.clamp(0, 3),
-                        separatorBuilder: (context, index) => Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                        itemBuilder: (context, index) {
-                          final item = _leaderboardList[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-                              child: Text(
-                                "#${index + 1}",
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.secondaryColor),
-                              ),
-                            ),
-                            title: Text(
-                              item['username'] ?? 'Anonymous Gamer',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                            trailing: Text(
-                              "${item['score'] ?? 0} pts",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? AppTheme.secondaryColor : const Color(0xFF0284C7),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _leaderboardList.length.clamp(0, 3),
+                    separatorBuilder: (context, index) => Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                    itemBuilder: (context, index) {
+                      final item = _leaderboardList[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+                          child: Text(
+                            "#${index + 1}",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.secondaryColor),
+                          ),
+                        ),
+                        title: Text(
+                          item['username'] ?? 'Anonymous Gamer',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        trailing: Text(
+                          "${item['score'] ?? 0} pts",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? AppTheme.secondaryColor : const Color(0xFF0284C7),
+                          ),
+                        ),
+                      );
+                    },
                   ),
               ],
             ),
