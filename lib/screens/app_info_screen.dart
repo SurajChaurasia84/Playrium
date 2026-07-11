@@ -1,16 +1,55 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
 
-class AppInfoScreen extends StatelessWidget {
+class AppInfoScreen extends StatefulWidget {
   const AppInfoScreen({super.key});
+
+  @override
+  State<AppInfoScreen> createState() => _AppInfoScreenState();
+}
+
+class _AppInfoScreenState extends State<AppInfoScreen> {
+  String _version = "1.0.0";
+  String _buildNumber = "1";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPackageInfo();
+  }
+
+  Future<void> _loadPackageInfo() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _version = info.version;
+          _buildNumber = info.buildNumber;
+        });
+      }
+    } catch (e) {
+      debugPrint("Failed to load package info: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text(
+          "App Info",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -21,110 +60,126 @@ class AppInfoScreen extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with back button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back_ios_new, color: isDark ? Colors.white : Colors.black87),
-                      onPressed: () => context.pop(),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      "APP INFORMATION",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                  children: [
-                    // App Logo Mock
-                    Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.sports_esports_outlined,
-                              size: 64,
-                              color: AppTheme.secondaryColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                children: [
+                  // Real App Logo Header
+                  Center(
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            color: Colors.transparent,
+                            child: Image.asset(
+                              'assets/icon.png',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                                child: const Icon(Icons.sports_esports, size: 40, color: AppTheme.secondaryColor),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Playrium",
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          "Version $_version ($_buildNumber)",
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Detailed metadata list
+                  GlassCard(
+                    blur: 10,
+                    opacity: isDark ? 0.05 : 0.03,
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        _buildInfoRow(context, "Version", _version),
+                        Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                        _buildInfoRow(
+                          context,
+                          "Platform",
+                          Platform.isAndroid ? "Android" : Platform.isIOS ? "iOS" : "Flutter",
+                        ),
+                        Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                        _buildInfoRow(context, "Build Number", _buildNumber),
+                      ],
+                    ),
+                  ),
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Opacity(
+                            opacity: 0.6,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.asset(
+                                'assets/icon.png',
+                                width: 22,
+                                height: 22,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) => Icon(
+                                  Icons.sports_esports_outlined,
+                                  size: 22,
+                                  color: isDark ? Colors.white24 : Colors.black26,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
                             "Playrium",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-                          ),
-                          const Text(
-                            "Version 1.0.0 (Build 1)",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // App Description
-                    GlassCard(
-                      blur: 10,
-                      opacity: isDark ? 0.05 : 0.03,
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "ABOUT PLAYRIUM",
-                            style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold, letterSpacing: 0.8),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Playrium is a premium, reward-based gaming platform that brings fun quizzes, interactive minigames, and developer support together in a single polished application.",
-                            style: TextStyle(fontSize: 13, height: 1.5),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white60 : AppTheme.primaryColor.withValues(alpha: 0.8),
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Detailed metadata list
-                    GlassCard(
-                      blur: 10,
-                      opacity: isDark ? 0.05 : 0.03,
-                      padding: EdgeInsets.zero,
-                      child: Column(
-                        children: [
-                          _buildInfoRow(context, "Developer team", "Playrium Studios"),
-                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                          _buildInfoRow(context, "Released date", "July 2026"),
-                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                          _buildInfoRow(context, "Supported SDKs", "Flutter 3.x / Firebase"),
-                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                          _buildInfoRow(context, "Category", "Rewarded Arcade & Quiz"),
-                        ],
+                      const SizedBox(height: 6),
+                      Text(
+                        "© 2026 Playrium. All rights reserved.",
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: isDark ? Colors.white38 : Colors.black45,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
