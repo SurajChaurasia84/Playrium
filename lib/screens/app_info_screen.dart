@@ -191,14 +191,18 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
         children: [
           Text(
             key,
-            style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           Text(
             val,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+              color: Colors.grey,
             ),
           ),
         ],
