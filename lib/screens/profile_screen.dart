@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../navigation/app_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../providers/user_provider.dart';
 import '../providers/theme_provider.dart';
@@ -77,10 +78,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       user.username,
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    Text(
-                      user.email,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                    if (user.uid != 'offline_guest') ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        user.email,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -208,7 +212,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         onTap: () async {
                           final Uri emailUri = Uri(
                             scheme: 'mailto',
-                            path: 'support@playrium.com',
+                            path: 'contact.appsinfo@gmail.com',
                             query: 'subject=Playrium Help & Support Inquiry',
                           );
                           try {
@@ -221,7 +225,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Could not open email client. Contact: support@playrium.com"),
+                                  content: Text("Could not open email. mailto: contact.appsinfo@gmail.com"),
                                   backgroundColor: Colors.orangeAccent,
                                 ),
                               );
@@ -263,6 +267,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         leading: const Icon(Icons.logout, color: Colors.redAccent),
                         title: const Text("Logout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent)),
                         onTap: () {
+                          ref.read(isGuestModeProvider.notifier).setGuestMode(false);
                           _authService.signOut();
                         },
                       )
