@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../providers/user_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
@@ -43,34 +46,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 100), // extra padding for bottom navigation
           children: [
-              // Avatar & Level Section
+              // Avatar Section
               Center(
                 child: Column(
                   children: [
-                    Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        CircleAvatar(
-                          radius: 46,
-                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-                          backgroundImage: NetworkImage(user.avatarUrl),
-                          onBackgroundImageError: (exception, stackTrace) {
-                            debugPrint("Failed to load profile image: $exception");
-                          },
-                          child: const Icon(Icons.person, size: 40, color: Colors.white70),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.secondaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            "${user.level}",
-                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11),
-                          ),
-                        )
-                      ],
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(46),
+                      child: Container(
+                        width: 92,
+                        height: 92,
+                        color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                        child: user.avatarUrl.isNotEmpty
+                            ? Image.network(
+                                user.avatarUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.white70,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.white70,
+                              ),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -125,27 +126,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
 
-              // Achievements rack list
-              const Text(
-                "ACHIEVEMENT MILestones",
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2),
-              ),
-              const SizedBox(height: 10),
-              
-              SizedBox(
-                height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _achievementBadge("First Steps", "Completed Profile Details", Icons.military_tech, user.profileCompleted),
-                    _achievementBadge("Streak King", "Achieved 3 days checkin", Icons.workspace_premium, user.streak >= 3),
-                    _achievementBadge("Coin Baron", "Acquired 200+ coins", Icons.diamond, user.coins >= 200),
-                    _achievementBadge("Gamer Level", "Reached Level 5", Icons.sports_esports, user.level >= 5),
-                  ],
-                ),
-              ),
               const SizedBox(height: 24),
 
               // General preferences options
@@ -202,6 +183,93 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           setState(() {
                             _notificationsEnabled = val;
                           });
+                        },
+                      ),
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+
+                      // App Info
+                      ListTile(
+                        leading: const Icon(Icons.info_outline, color: AppTheme.primaryColor),
+                        title: const Text("App Info", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                        onTap: () => context.push('/profile/info'),
+                      ),
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+
+                      // Share App
+                      ListTile(
+                        leading: const Icon(Icons.share_outlined, color: AppTheme.primaryColor),
+                        title: const Text("Share App", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                        onTap: () async {
+                          try {
+                            await SharePlus.instance.share(
+                              ShareParams(
+                                text: "Hey! Check out Playrium - a premium rewarded arcade and quiz gaming app: https://playrium.com/download",
+                                subject: "Playrium Game App",
+                              ),
+                            );
+                          } catch (e) {
+                            debugPrint("Error sharing: $e");
+                          }
+                        },
+                      ),
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+
+                      // Help & Support (direct open email with subject)
+                      ListTile(
+                        leading: const Icon(Icons.help_outline, color: AppTheme.primaryColor),
+                        title: const Text("Help & Support", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                        onTap: () async {
+                          final Uri emailUri = Uri(
+                            scheme: 'mailto',
+                            path: 'support@playrium.com',
+                            query: 'subject=Playrium Help & Support Inquiry',
+                          );
+                          try {
+                            if (await canLaunchUrl(emailUri)) {
+                              await launchUrl(emailUri);
+                            } else {
+                              throw 'Could not launch $emailUri';
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Could not open email client. Contact: support@playrium.com"),
+                                  backgroundColor: Colors.orangeAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+
+                      // Privacy Policy (direct open dummy link)
+                      ListTile(
+                        leading: const Icon(Icons.privacy_tip_outlined, color: AppTheme.primaryColor),
+                        title: const Text("Privacy Policy", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                        onTap: () async {
+                          final Uri url = Uri.parse("https://playrium.com/privacy-policy");
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Could not open privacy policy link."),
+                                  backgroundColor: Colors.orangeAccent,
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                       Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
@@ -284,52 +352,5 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _achievementBadge(String title, String desc, IconData icon, bool isUnlocked) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 12),
-      child: GlassCard(
-        blur: 5,
-        opacity: isUnlocked ? 0.12 : 0.03,
-        padding: const EdgeInsets.all(8),
-        border: isUnlocked 
-            ? Border.all(color: (isDark ? AppTheme.accentColor : const Color(0xFFD97706)).withValues(alpha: 0.5)) 
-            : null,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isUnlocked 
-                  ? (isDark ? AppTheme.accentColor : const Color(0xFFD97706)) 
-                  : Colors.grey.withValues(alpha: 0.4),
-              size: 28,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: isUnlocked 
-                    ? (isDark ? Colors.white : Colors.black87) 
-                    : (isDark ? Colors.white30 : Colors.black26),
-              ),
-            ),
-            Text(
-              desc,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 8, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 }
