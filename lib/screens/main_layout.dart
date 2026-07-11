@@ -57,7 +57,7 @@ class MainLayout extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildNavItem(context, 0, Icons.home_filled, "Home"),
-                    _buildNavItem(context, 1, Icons.task_alt, "Tasks"),
+                    _buildNavItem(context, 1, Icons.verified, "Tasks"),
                     _buildNavItem(context, 2, Icons.sports_esports, "Games"),
                     _buildNavItem(context, 3, Icons.person, "You"),
                   ],
