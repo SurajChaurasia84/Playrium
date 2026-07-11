@@ -115,27 +115,28 @@ class AdmobService {
     BuildContext context, {
     required VoidCallback onRewardEarned,
     required VoidCallback onClosed,
+    required VoidCallback onLoadingStart,
+    required VoidCallback onLoadingEnd,
   }) {
     if (!_isAdMobAvailable()) {
-      _showMockRewardedAdDialog(context, onRewardEarned, onClosed);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("AdMob is not supported on this platform."),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+      onClosed();
       return;
     }
 
-    // Show loading overlay
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    onLoadingStart(); // Signal UI to start local loading overlay
 
     RewardedAd.load(
       adUnitId: rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
-          Navigator.of(context).pop(); // Dismiss loading overlay
+          onLoadingEnd(); // Signal UI to end loading overlay
           
           ad.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
@@ -144,7 +145,6 @@ class AdmobService {
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
               ad.dispose();
-              Navigator.of(context).pop(); // Ensure dismiss
               onClosed();
             },
           );
@@ -156,151 +156,89 @@ class AdmobService {
           );
         },
         onAdFailedToLoad: (error) {
-          Navigator.of(context).pop(); // Dismiss loading overlay
-          debugPrint('RewardedAd failed to load: $error. Running mock simulation.');
-          _showMockRewardedAdDialog(context, onRewardEarned, onClosed);
+          onLoadingEnd(); // Signal UI to end loading overlay
+          debugPrint('RewardedAd failed to load: $error.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("AdMob load failed: ${error.message} (Code: ${error.code})"),
+              backgroundColor: Colors.redAccent,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+          onClosed();
+        },
+      ),
+    );
+  }
+}
+
+class AppOpenAdManager {
+  AppOpenAd? _appOpenAd;
+  bool _isShowingAd = false;
+  DateTime? _loadTime;
+
+  /// Load an AppOpenAd.
+  void loadAd() {
+    if (kIsWeb) return;
+    final isMobile = defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
+    if (!isMobile) return;
+
+    AppOpenAd.load(
+      adUnitId: AdmobService.appOpenAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) {
+          debugPrint('AppOpenAd loaded.');
+          _appOpenAd = ad;
+          _loadTime = DateTime.now();
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('AppOpenAd failed to load: $error');
         },
       ),
     );
   }
 
-  // Beautiful UI simulation of a Rewarded Ad when offline/in simulator
-  void _showMockRewardedAdDialog(
-    BuildContext context,
-    VoidCallback onRewardEarned,
-    VoidCallback onClosed,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return _MockAdScreen(
-          onCompleted: () {
-            Navigator.of(dialogContext).pop();
-            onRewardEarned();
-            onClosed();
-          },
-          onCancelled: () {
-            Navigator.of(dialogContext).pop();
-            onClosed();
-          },
-        );
+  /// Whether an ad is available to be shown.
+  bool get isAdAvailable {
+    if (_appOpenAd == null || _loadTime == null) return false;
+    return DateTime.now().difference(_loadTime!).inHours < 4;
+  }
+
+  /// Show the ad if one is available.
+  void showAdIfAvailable() {
+    if (_isShowingAd) {
+      debugPrint('AppOpenAd is already showing.');
+      return;
+    }
+
+    if (!isAdAvailable) {
+      debugPrint('AppOpenAd is not available. Loading next ad.');
+      loadAd();
+      return;
+    }
+
+    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        debugPrint('AppOpenAd showed full screen content.');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        debugPrint('AppOpenAd dismissed full screen content.');
+        ad.dispose();
+        _appOpenAd = null;
+        loadAd(); // Pre-load the next ad
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        debugPrint('AppOpenAd failed to show: $error');
+        ad.dispose();
+        _appOpenAd = null;
+        loadAd(); // Retry loading
       },
     );
-  }
-}
 
-// Simulated Video Ad dialog player
-class _MockAdScreen extends StatefulWidget {
-  final VoidCallback onCompleted;
-  final VoidCallback onCancelled;
-
-  const _MockAdScreen({required this.onCompleted, required this.onCancelled});
-
-  @override
-  State<_MockAdScreen> createState() => _MockAdScreenState();
-}
-
-class _MockAdScreenState extends State<_MockAdScreen> {
-  int _secondsLeft = 5; // Standard short test ad duration
-  late double _progress = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return false;
-      setState(() {
-        _secondsLeft--;
-        _progress = _secondsLeft / 5.0;
-      });
-      if (_secondsLeft <= 0) {
-        widget.onCompleted();
-        return false;
-      }
-      return true;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: const Color(0xFF0F1117),
-      insetPadding: const EdgeInsets.all(0),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background content mimicking ad visual
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF6C5CE7), Color(0xFF0F1117)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.play_circle_filled, size: 80, color: Color(0xFF00D1FF)),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Playrium Sponsor Video",
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Reward: 5 Coins + 10 XP",
-                    style: TextStyle(color: Colors.amberAccent.shade100, fontSize: 14),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      value: _progress,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00D1FF)),
-                      backgroundColor: Colors.white10,
-                      strokeWidth: 6,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Timer counter
-          Positioned(
-            top: 24,
-            right: 24,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                "Ad ends in ${_secondsLeft}s",
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-          // Skip / Close Button
-          Positioned(
-            top: 24,
-            left: 24,
-            child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white70),
-              onPressed: widget.onCancelled,
-            ),
-          )
-        ],
-      ),
-    );
+    _appOpenAd!.show();
   }
 }
