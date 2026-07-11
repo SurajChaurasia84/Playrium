@@ -14,13 +14,6 @@ class GamesScreen extends ConsumerStatefulWidget {
 class _GamesScreenState extends ConsumerState<GamesScreen> {
   final List<Map<String, dynamic>> _gamesCatalog = [
     {
-      'id': 'target_hit',
-      'name': 'Target Hit',
-      'description': 'Flame Game Engine visual click speed shooter.',
-      'icon': Icons.gps_fixed,
-      'gradient': [const Color(0xFF6C5CE7), const Color(0xFF8E2DE2)],
-    },
-    {
       'id': 'tap_challenge',
       'name': 'Tap Challenge',
       'description': 'Click fast button. Test clicking frequency limits.',
@@ -40,13 +33,6 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
       'description': 'Flip and match hidden card symbols. Test memory bounds.',
       'icon': Icons.extension,
       'gradient': [const Color(0xFF11998E), const Color(0xFF38EF7D)],
-    },
-    {
-      'id': 'color_match',
-      'name': 'Color Match',
-      'description': 'Cognitive word text matching puzzle (Stroop effect).',
-      'icon': Icons.palette,
-      'gradient': [const Color(0xFFF12711), const Color(0xFFF5AF19)],
     },
     {
       'id': 'game_2048',
