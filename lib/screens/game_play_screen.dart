@@ -154,12 +154,8 @@ class _GamePlayScreenState extends ConsumerState<GamePlayScreen> {
                             ),
                             const SizedBox(height: 16),
                           ],
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _rewardCell("+${_rewardResults!['rewardCoins']} Coins", Icons.monetization_on, AppTheme.accentColor),
-                              _rewardCell("+${_rewardResults!['rewardXp']} XP", Icons.offline_bolt, AppTheme.secondaryColor),
-                            ],
+                          Center(
+                            child: _rewardCell("+${_rewardResults!['rewardCoins']} Coins", Icons.monetization_on, AppTheme.accentColor),
                           ),
                           const SizedBox(height: 32),
                           ElevatedButton(
