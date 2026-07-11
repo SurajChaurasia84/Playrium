@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/user_provider.dart';
+import '../services/admob_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
 
@@ -84,7 +85,6 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final percentage = (_correctAnswers / _questions.length) * 100;
     final notifier = ref.read(userProvider.notifier);
 
-    // Call Vercel API endpoint tasks claiming
     bool success = await notifier.claimTaskReward('take_quiz');
     
     if (percentage >= 80) {
@@ -93,19 +93,23 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       });
     }
 
-    if (mounted) {
-      setState(() {
-        _isClaiming = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success 
-              ? "🎉 Quiz completed! Score: ${percentage.toStringAsFixed(0)}%. Reward credited." 
-              : "Completed! Balance updated."),
-          backgroundColor: AppTheme.primaryColor,
-        ),
-      );
-    }
+    if (!mounted) return;
+
+    setState(() {
+      _isClaiming = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success 
+            ? "🎉 Quiz completed! Score: ${percentage.toStringAsFixed(0)}%. Reward credited." 
+            : "Completed! Balance updated."),
+        backgroundColor: AppTheme.primaryColor,
+      ),
+    );
+
+    // Show interstitial ad after quiz completion
+    AdmobService().showTransitionInterstitial(context, () {});
   }
 
   @override
