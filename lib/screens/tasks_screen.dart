@@ -122,6 +122,16 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     ];
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text(
+          "Daily Tasks",
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           Container(
@@ -137,26 +147,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            // Header
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, 16 + MediaQuery.of(context).padding.top, 20, 8),
-              child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "QUEST ZONE",
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.5),
-                    ),
-                    Text(
-                      "TASKS & MISSION BOARD",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Tasks list
-              Expanded(
+                SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8),
+                // Tasks list
+                Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
                   itemCount: tasksList.length,
