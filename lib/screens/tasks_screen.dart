@@ -74,14 +74,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       );
     }
 
-    // List of tasks matching standard rewards schema
+    // List of tasks matching standard rewards schema using asset images
     final tasksList = [
       _TaskItem(
         id: 'daily_checkin',
         title: 'Daily Check-in',
         description: 'Log in and claim your daily reward.',
         rewardCoins: 5,
-        icon: Icons.calendar_today,
+        imagePath: 'assets/check-in.png',
         isCompleted: user.lastCheckInDate == DateTime.now().toIso8601String().split('T')[0],
         onAction: () async {
           final success = await ref.read(userProvider.notifier).claimTaskReward('daily_checkin');
@@ -104,7 +104,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         title: 'Take Quiz',
         description: 'Answer trivia questions to earn rewards.',
         rewardCoins: 15,
-        icon: Icons.quiz_outlined,
+        imagePath: 'assets/quiz.png',
         isCompleted: false,
         onAction: () => context.go('/tasks/quiz'),
         actionLabel: 'PLAY QUIZ',
@@ -114,7 +114,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         title: 'Watch Optional Ad',
         description: 'Watch video (Max 5/day).',
         rewardCoins: 5,
-        icon: Icons.ondemand_video_outlined,
+        imagePath: 'assets/watch-ad.png',
         isCompleted: _adsWatchedToday >= 5,
         onAction: _watchRewardedAd,
         actionLabel: 'WATCH ($_adsWatchedToday/5)',
@@ -150,83 +150,89 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                 SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8),
                 // Tasks list
                 Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-                  itemCount: tasksList.length,
-                  itemBuilder: (context, index) {
-                    final task = tasksList[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: GlassCard(
-                        blur: 10,
-                        opacity: isDark ? 0.05 : 0.04,
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(12),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                    itemCount: tasksList.length,
+                    itemBuilder: (context, index) {
+                      final task = tasksList[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: GlassCard(
+                          blur: 10,
+                          opacity: isDark ? 0.05 : 0.04,
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                task.imagePath,
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.contain,
                               ),
-                              child: Icon(task.icon, color: AppTheme.secondaryColor, size: 24),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    task.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    task.description,
-                                    style: const TextStyle(fontSize: 11, color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.monetization_on, color: AppTheme.accentColor, size: 14),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        "+${task.rewardCoins} Coins",
-                                        style: const TextStyle(color: AppTheme.accentColor, fontSize: 11, fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      task.title,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      task.description,
+                                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Image.asset(
+                                          'assets/coin.png',
+                                          width: 14,
+                                          height: 14,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "+${task.rewardCoins} Coins",
+                                          style: TextStyle(
+                                            color: isDark ? AppTheme.accentColor : const Color(0xFFD97706),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            if (task.isCompleted)
-                              const Icon(Icons.check_circle, color: Colors.greenAccent, size: 28)
-                            else
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryColor,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                  minimumSize: const Size(60, 36),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  elevation: 0,
-                                ),
-                                onPressed: task.onAction,
-                                child: Text(
-                                  task.actionLabel,
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              )
-                          ],
+                              const SizedBox(width: 8),
+                              if (task.isCompleted)
+                                const Icon(Icons.check_circle, color: Colors.greenAccent, size: 28)
+                              else
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    minimumSize: const Size(60, 36),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: task.onAction,
+                                  child: Text(
+                                    task.actionLabel,
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
           if (_loadingAd)
             Positioned.fill(
               child: Container(
@@ -250,7 +256,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       ),
     );
   }
-
 }
 
 class _TaskItem {
@@ -258,7 +263,7 @@ class _TaskItem {
   final String title;
   final String description;
   final int rewardCoins;
-  final IconData icon;
+  final String imagePath;
   final bool isCompleted;
   final VoidCallback onAction;
   final String actionLabel;
@@ -268,7 +273,7 @@ class _TaskItem {
     required this.title,
     required this.description,
     required this.rewardCoins,
-    required this.icon,
+    required this.imagePath,
     required this.isCompleted,
     required this.onAction,
     required this.actionLabel,
