@@ -91,7 +91,7 @@ class MainLayout extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOut,
-                width: 36,
+                width: 44,
                 height: 3,
                 decoration: BoxDecoration(
                   color: isSelected ? AppTheme.secondaryColor : Colors.transparent,
@@ -103,7 +103,7 @@ class MainLayout extends StatelessWidget {
               Icon(
                 icon,
                 color: color,
-                size: 26,
+                size:28,
               ),
               const Spacer(),
             ],
