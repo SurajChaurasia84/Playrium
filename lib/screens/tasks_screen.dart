@@ -39,7 +39,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("🎉 Claimed 5 Coins & 10 XP ad viewing bonus!"),
+              content: Text("🎉 Claimed 5 Coins ad viewing bonus!"),
               backgroundColor: AppTheme.primaryColor,
             ),
           );
@@ -100,19 +100,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         actionLabel: 'CLAIM',
       ),
       _TaskItem(
-        id: 'complete_profile',
-        title: 'Complete Profile',
-        description: 'Verify profile name & details.',
-        rewardCoins: 20,
-        icon: Icons.person_outline,
-        isCompleted: user.profileCompleted,
-        onAction: () {
-          // Open profile update dialog
-          _showCompleteProfileDialog(context);
-        },
-        actionLabel: 'COMPLETE',
-      ),
-      _TaskItem(
         id: 'take_quiz',
         title: 'Take Quiz',
         description: 'Answer trivia questions to earn rewards.',
@@ -125,26 +112,12 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       _TaskItem(
         id: 'rewarded_ad',
         title: 'Watch Optional Ad',
-        description: 'Watch sponsor video (Max 5/day).',
+        description: 'Watch video (Max 5/day).',
         rewardCoins: 5,
         icon: Icons.ondemand_video_outlined,
         isCompleted: _adsWatchedToday >= 5,
         onAction: _watchRewardedAd,
         actionLabel: 'WATCH ($_adsWatchedToday/5)',
-      ),
-      _TaskItem(
-        id: 'invite_user',
-        title: 'Invite Friends',
-        description: 'Invite a real active gamer.',
-        rewardCoins: 50,
-        icon: Icons.group_add_outlined,
-        isCompleted: false,
-        onAction: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Promo Code Copied! Share with friends."), backgroundColor: AppTheme.primaryColor),
-          );
-        },
-        actionLabel: 'INVITE',
       ),
     ];
 
@@ -272,7 +245,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                       CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryColor)),
                       SizedBox(height: 16),
                       Text(
-                        "Loading Sponsor Ad...",
+                        "Loading Ad...",
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                       )
                     ],
@@ -285,50 +258,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     );
   }
 
-  void _showCompleteProfileDialog(BuildContext context) {
-    final textController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.darkSurfaceColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Complete Profile", style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: textController,
-              decoration: const InputDecoration(
-                hintText: "Enter a custom username",
-                hintStyle: TextStyle(color: Colors.white30),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("CANCEL", style: TextStyle(color: Colors.white30)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
-            onPressed: () {
-              if (textController.text.isNotEmpty) {
-                ref.read(userProvider.notifier).completeProfileDetails(
-                  username: textController.text,
-                  avatar: 'https://lh3.googleusercontent.com/a/default-user',
-                );
-                Navigator.pop(context);
-              }
-            },
-            child: const Text("SAVE", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _TaskItem {
