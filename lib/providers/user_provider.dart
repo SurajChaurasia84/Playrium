@@ -8,6 +8,10 @@ import '../navigation/app_router.dart';
 
 final userProvider = StateNotifierProvider<UserNotifier, UserModel?>((ref) {
   final authState = ref.watch(authStateProvider);
+  final isGuestMode = ref.watch(isGuestModeProvider);
+  if (isGuestMode) {
+    return UserNotifier('offline_guest');
+  }
   return UserNotifier(authState.value?.uid);
 });
 
@@ -25,6 +29,19 @@ class UserNotifier extends StateNotifier<UserModel?> {
   Future<void> _loadOrCreateUser() async {
     if (_uid == null) return;
     
+    if (_uid == 'offline_guest') {
+      state = UserModel(
+        uid: 'offline_guest',
+        username: 'Guest Player',
+        email: 'guest@playrium.com',
+        avatarUrl: 'https://lh3.googleusercontent.com/a/default-user',
+        coins: 0, // removed 100 bonus
+        streak: 1,
+        hasProfilePhoto: false,
+      );
+      return;
+    }
+    
     // Check Firestore
     var user = await _firestoreService.getUserProfile(_uid);
     if (user == null) {
@@ -35,11 +52,8 @@ class UserNotifier extends StateNotifier<UserModel?> {
         username: authUser?.displayName ?? 'Player_${_uid.substring(0, 5)}',
         email: authUser?.email ?? '',
         avatarUrl: authUser?.photoURL ?? 'https://lh3.googleusercontent.com/a/default-user',
-        coins: 100, // starting coins bonus
-        level: 1,
-        xp: 0,
+        coins: 0, // removed 100 bonus
         streak: 1,
-        profileCompleted: false,
         hasProfilePhoto: authUser?.photoURL != null,
       );
       await _firestoreService.createUserProfile(user);
@@ -54,12 +68,13 @@ class UserNotifier extends StateNotifier<UserModel?> {
     final updated = state!.copyWith(
       username: username,
       avatarUrl: avatar,
-      profileCompleted: true,
       hasProfilePhoto: avatar.isNotEmpty,
     );
 
     state = updated;
-    await _firestoreService.createUserProfile(updated);
+    if (_uid != 'offline_guest') {
+      await _firestoreService.createUserProfile(updated);
+    }
     
     // Claim coin rewards for complete profile!
     await claimTaskReward('complete_profile');
@@ -69,26 +84,36 @@ class UserNotifier extends StateNotifier<UserModel?> {
   Future<bool> claimTaskReward(String taskId, [Map<String, dynamic>? details]) async {
     if (state == null) return false;
 
+    if (_uid == 'offline_guest') {
+      int rewardCoins = 0;
+      if (taskId == 'daily_checkin') {
+        rewardCoins = 10;
+      } else if (taskId == 'watch_ad') {
+        rewardCoins = 5;
+      } else if (taskId == 'quiz_complete') {
+        rewardCoins = 15;
+      } else if (taskId == 'complete_profile') {
+        rewardCoins = 25;
+      }
+
+      final newCoins = state!.coins + rewardCoins;
+
+      state = state!.copyWith(
+        coins: newCoins,
+        lastCheckInDate: taskId == 'daily_checkin' ? DateTime.now().toIso8601String().split('T')[0] : state!.lastCheckInDate,
+        streak: taskId == 'daily_checkin' ? state!.streak + 1 : state!.streak,
+      );
+      return true;
+    }
+
     try {
       final response = await _apiService.claimTask(taskId, details: details);
       if (response['success'] == true) {
         final rewardCoins = response['reward']?['coins'] as int? ?? 0;
-        final rewardXp = response['reward']?['xp'] as int? ?? 0;
-
         final newCoins = state!.coins + rewardCoins;
-        
-        // Custom local level-up calculations mirroring backend
-        int newXp = state!.xp + rewardXp;
-        int newLevel = state!.level;
-        while (newXp >= newLevel * 100) {
-          newXp -= newLevel * 100;
-          newLevel++;
-        }
 
         final updated = state!.copyWith(
           coins: newCoins,
-          xp: newXp,
-          level: newLevel,
           lastCheckInDate: taskId == 'daily_checkin' ? DateTime.now().toIso8601String().split('T')[0] : state!.lastCheckInDate,
           streak: taskId == 'daily_checkin' ? state!.streak + 1 : state!.streak,
         );
@@ -108,41 +133,36 @@ class UserNotifier extends StateNotifier<UserModel?> {
   Future<Map<String, dynamic>> submitGameScore(String gameId, int score, Map<String, dynamic> telemetry) async {
     if (state == null) return {'success': false, 'error': 'User not authenticated'};
 
+    if (_uid == 'offline_guest') {
+      const rewardCoins = 5;
+      final newCoins = state!.coins + rewardCoins;
+
+      state = state!.copyWith(
+        coins: newCoins,
+      );
+
+      return {
+        'success': true,
+        'rewardCoins': rewardCoins,
+      };
+    }
+
     try {
       final response = await _apiService.submitScore(gameId, score, telemetry);
       if (response['success'] == true) {
         final rewardCoins = response['reward']?['coins'] as int? ?? 0;
-        final rewardXp = response['reward']?['xp'] as int? ?? 0;
-
         final newCoins = state!.coins + rewardCoins;
-        
-        int newXp = state!.xp + rewardXp;
-        int newLevel = state!.level;
-        while (newXp >= newLevel * 100) {
-          newXp -= newLevel * 100;
-          newLevel++;
-        }
-
-        final isNewHighScore = response['newHighScore'] as bool? ?? false;
 
         final updated = state!.copyWith(
           coins: newCoins,
-          xp: newXp,
-          level: newLevel,
         );
 
         state = updated;
         await _firestoreService.updateUserProfileLocal(updated);
-        
-        if (isNewHighScore) {
-          await _firestoreService.saveGameStatsLocal(_uid!, gameId, score);
-        }
 
         return {
           'success': true,
           'rewardCoins': rewardCoins,
-          'rewardXp': rewardXp,
-          'newHighScore': isNewHighScore,
         };
       }
       return {'success': false, 'error': 'Failed score sub'};
@@ -156,24 +176,24 @@ class UserNotifier extends StateNotifier<UserModel?> {
   Future<bool> claimRewardedAdCoins() async {
     if (state == null) return false;
 
+    if (_uid == 'offline_guest') {
+      const rewardCoins = 5;
+      final newCoins = state!.coins + rewardCoins;
+
+      state = state!.copyWith(
+        coins: newCoins,
+      );
+      return true;
+    }
+
     try {
       final response = await _apiService.claimAdReward();
       if (response['success'] == true) {
         final rewardCoins = response['reward']?['coins'] as int? ?? 5;
-        final rewardXp = response['reward']?['xp'] as int? ?? 10;
-
         final newCoins = state!.coins + rewardCoins;
-        int newXp = state!.xp + rewardXp;
-        int newLevel = state!.level;
-        while (newXp >= newLevel * 100) {
-          newXp -= newLevel * 100;
-          newLevel++;
-        }
 
         final updated = state!.copyWith(
           coins: newCoins,
-          xp: newXp,
-          level: newLevel,
         );
 
         state = updated;
