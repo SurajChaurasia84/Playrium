@@ -159,58 +159,63 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 blur: 10,
                 opacity: isDark ? 0.05 : 0.03,
                 padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    // Theme Mode Dropdown
-                    ListTile(
-                      leading: const Icon(Icons.palette_outlined, color: AppTheme.primaryColor),
-                      title: const Text("Theme Layout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            themeMode == ThemeMode.system
-                                ? "System"
-                                : themeMode == ThemeMode.light
-                                    ? "Light"
-                                    : "Dark",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: isDark ? Colors.white60 : Colors.black54,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      // Theme Mode Dropdown
+                      ListTile(
+                        leading: const Icon(Icons.palette_outlined, color: AppTheme.primaryColor),
+                        title: const Text("Theme Layout", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              themeMode == ThemeMode.system
+                                  ? "System"
+                                  : themeMode == ThemeMode.light
+                                      ? "Light"
+                                      : "Dark",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark ? Colors.white60 : Colors.black54,
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
-                        ],
+                            const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                          ],
+                        ),
+                        onTap: () {
+                          _showThemeSelectionSheet(context, ref, themeMode);
+                        },
                       ),
-                      onTap: () {
-                        _showThemeSelectionSheet(context, ref, themeMode);
-                      },
-                    ),
-                    Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-                    
-                    // Notification Switches
-                    SwitchListTile(
-                      secondary: const Icon(Icons.notifications_active_outlined, color: AppTheme.secondaryColor),
-                      title: const Text("Alert Push Notifications", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                      value: _notificationsEnabled,
-                      activeThumbColor: AppTheme.secondaryColor,
-                      onChanged: (val) {
-                        setState(() {
-                          _notificationsEnabled = val;
-                        });
-                      },
-                    ),
-                    Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
-
-                    // Log out
-                    ListTile(
-                      leading: const Icon(Icons.logout, color: Colors.redAccent),
-                      title: const Text("Logout Session", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent)),
-                      onTap: () {
-                        _authService.signOut();
-                      },
-                    )
-                  ],
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                      
+                      // Notification Switches
+                      SwitchListTile(
+                        secondary: const Icon(Icons.notifications_active_outlined, color: AppTheme.secondaryColor),
+                        title: const Text("Alert Push Notifications", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        value: _notificationsEnabled,
+                        activeThumbColor: AppTheme.secondaryColor,
+                        onChanged: (val) {
+                          setState(() {
+                            _notificationsEnabled = val;
+                          });
+                        },
+                      ),
+                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+  
+                      // Log out
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: Colors.redAccent),
+                        title: const Text("Logout Session", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.redAccent)),
+                        onTap: () {
+                          _authService.signOut();
+                        },
+                      )
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -262,7 +267,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _buildThemeSheetOption(BuildContext context, WidgetRef ref, String title, ThemeMode mode, bool isSelected, IconData icon) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
-      leading: Icon(icon, color: isSelected ? AppTheme.primaryColor : (isDark ? Colors.white70 : Colors.black80)),
+      leading: Icon(icon, color: isSelected ? AppTheme.primaryColor : (isDark ? Colors.white70 : Colors.black87)),
       title: Text(
         title,
         style: TextStyle(
