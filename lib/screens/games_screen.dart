@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/user_provider.dart';
-import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
 
@@ -14,10 +12,6 @@ class GamesScreen extends ConsumerStatefulWidget {
 }
 
 class _GamesScreenState extends ConsumerState<GamesScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
-  final Map<String, int> _highScores = {};
-  bool _loadingScores = true;
-
   final List<Map<String, dynamic>> _gamesCatalog = [
     {
       'id': 'target_hit',
@@ -64,28 +58,6 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _loadHighScores();
-  }
-
-  void _loadHighScores() async {
-    final user = ref.read(userProvider);
-    if (user != null) {
-      for (var game in _gamesCatalog) {
-        final id = game['id'] as String;
-        final score = await _firestoreService.getGameHighScoreLocal(user.uid, id);
-        _highScores[id] = score;
-      }
-    }
-    if (mounted) {
-      setState(() {
-        _loadingScores = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -116,102 +88,82 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
             SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 8),
             // Game selection grid list
             Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: _gamesCatalog.length,
-                  itemBuilder: (context, index) {
-                    final game = _gamesCatalog[index];
-                    final gameId = game['id'] as String;
-                    final gradient = game['gradient'] as List<Color>;
-                    final highscore = _highScores[gameId] ?? 0;
-
-                    return GestureDetector(
-                      onTap: () {
-                        // Navigate to selected gameplay screen
-                        context.go('/games/play/$gameId');
-                      },
-                      child: GlassCard(
-                        blur: 10,
-                        opacity: isDark ? 0.05 : 0.03,
-                        padding: EdgeInsets.zero,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Icon Gradient Cap
-                            Expanded(
-                              flex: 4,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: gradient,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                                ),
-                                child: Center(
-                                  child: Icon(game['icon'] as IconData, color: Colors.white, size: 36),
-                                ),
-                              ),
-                            ),
-                            // Details Block
-                            Expanded(
-                              flex: 5,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          game['name'] as String,
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          game['description'] as String,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 10, color: Colors.grey),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text(
-                                          "HIGHSCORE:",
-                                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
-                                        ),
-                                        Text(
-                                          _loadingScores ? "..." : "$highscore",
-                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppTheme.secondaryColor),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              child: GridView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.95,
                 ),
+                itemCount: _gamesCatalog.length,
+                itemBuilder: (context, index) {
+                  final game = _gamesCatalog[index];
+                  final gameId = game['id'] as String;
+                  final gradient = game['gradient'] as List<Color>;
+
+                  return GestureDetector(
+                    onTap: () {
+                      context.go('/games/play/$gameId');
+                    },
+                    child: GlassCard(
+                      blur: 10,
+                      opacity: isDark ? 0.05 : 0.03,
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Icon Gradient Cap
+                          Expanded(
+                            flex: 5,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: gradient,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                              ),
+                              child: Center(
+                                child: Icon(game['icon'] as IconData, color: Colors.white, size: 36),
+                              ),
+                            ),
+                          ),
+                          // Details Block
+                          Expanded(
+                            flex: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    game['name'] as String,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    game['description'] as String,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }
